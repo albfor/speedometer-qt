@@ -9,11 +9,9 @@ Canvas::Canvas(COMService *comserv, QWidget *parent) : QWidget(parent), comserv(
 {
 }
 
-void Canvas::paint_icon(QPainter &painter, const Icon &icon)
-{
-    painter.setFont(icon.font);
-    painter.drawText(icon.position, icon.icon);
-}
+const QString Canvas::text_font("Helvetica");
+const QString Canvas::icon_font("MaterialIcons");
+const QFont Canvas::IconWithColoredStates::label_font(text_font, 10);
 
 // Override of the paintEvent method to perform custom painting
 void Canvas::paintEvent(QPaintEvent *event)
@@ -43,47 +41,35 @@ void Canvas::paintEvent(QPaintEvent *event)
     paint_battery(painter);
 
     // Draw connection status icon and text based on the connection status
-    if (comserv->get_connection_state())
-    {
-        paint_icon(painter, connection_ok);
+    auto paint_connection = [&painter, this](Icon icon, QString message, QPoint label_position) {
+        paint_icon(painter, icon);
         painter.setFont(HELVETICA_FONT_14);
-        painter.drawText(SPEED_LABEL_POSITION, QString::number(comserv->get_speed()) + " km/h");
-    }
+        painter.drawText(label_position, message);
+    };
+    if (comserv->is_connected())
+        paint_connection(connection_ok, QString::number(comserv->get_speed()) + " km/h", SPEED_LABEL_POSITION);
     else
-    {
-        paint_icon(painter, connection_error);
-        painter.setFont(HELVETICA_FONT_14);
-        painter.drawText(ERROR_LABEL_POSITION, "Connection error!");
-    }
+        paint_connection(connection_error, "Connection Error!", ERROR_LABEL_POSITION);
 
-    // Set the font for the needle
+    // Draw the needle
     painter.setFont(HELVETICA_FONT_22);
-
-    // Calculate the angle for the needle based on the speed
-    qreal needleRadians = qDegreesToRadians(NEEDLE_OFFSET - comserv->get_speed());
-
-    // Set the pen color for the needle
     pen.setCapStyle(Qt::RoundCap);
     pen.setWidth(10);
     pen.setColor(Qt::red);
     painter.setPen(pen);
+    qreal needle_radians = qDegreesToRadians(NEEDLE_OFFSET - comserv->get_speed());
+    painter.drawLine(center, QPointF(center.x() + NEEDLE_LENGTH * qCos(needle_radians),
+                                     center.y() - NEEDLE_LENGTH * qSin(needle_radians)));
 
-    // Calculate the end position of the needle
-    qreal needleX = center.x() + NEEDLE_LENGTH * qCos(needleRadians);
-    qreal needleY = center.y() - NEEDLE_LENGTH * qSin(needleRadians);
-
-    // Draw the needle
-    painter.drawLine(center, QPointF(needleX, needleY));
     paint_turn_signals(painter);
 }
 
 void Canvas::paint_turn_signals(QPainter &painter)
 {
-    Setting::turn_signal_state signal = comserv->get_turn_signal_state();
-    if (comserv->get_connection_state())
+    if (comserv->is_connected())
     {
         QColor left, right;
-        QColor activeColor(Qt::green);
+        QColor visible(Qt::green);
 
         if (!is_visible)
         {
@@ -92,17 +78,18 @@ void Canvas::paint_turn_signals(QPainter &painter)
         }
         else
         {
+            Setting::turn_signal_state signal = comserv->get_turn_signal_state();
             switch (signal)
             {
             case Setting::LEFT:
-                left = activeColor;
+                left = visible;
                 break;
             case Setting::RIGHT:
-                right = activeColor;
+                right = visible;
                 break;
             case Setting::WARNING:
-                left = activeColor;
-                right = activeColor;
+                left = visible;
+                right = visible;
                 break;
             case Setting::OFF:
             default:
@@ -162,19 +149,13 @@ void Canvas::paint_ticks(QPainter &painter, QPen &pen)
     }
 }
 
-
-QColor Canvas::determine_color(IconWithColoredStates icon, int value)
-{
-    return value < icon.low ? icon.lowc : value < icon.high ? icon.medc : icon.highc;
-}
-
 void Canvas::paint_temperature(QPainter &painter)
 {
     int temp = comserv->get_temperature();
     painter.setPen(determine_color(temperature, temp));
     paint_icon(painter, temperature);
     painter.setPen(Qt::white);
-    painter.setFont(HELVETICA_FONT_10);
+    painter.setFont(temperature.label_font);
     painter.drawText(temperature.label, QString("%1°C").arg(temp, 3));
 }
 
@@ -190,6 +171,17 @@ void Canvas::paint_battery(QPainter &painter)
     battery_level_bar.setHeight((BATTERY_LEVEL_SIZE.height() * static_cast<int>(battery_level)) / 100);
     painter.drawRect(battery_level_bar);
     painter.setPen(Qt::white);
-    painter.setFont(HELVETICA_FONT_10);
+    painter.setFont(battery.label_font);
     painter.drawText(battery.label, QString("%1%").arg(battery_level, 3)); // 3 is max digits
+}
+
+void Canvas::paint_icon(QPainter &painter, const Icon &icon)
+{
+    painter.setFont(icon.font);
+    painter.drawText(icon.position, icon.icon);
+}
+
+QColor Canvas::determine_color(IconWithColoredStates icon, int value)
+{
+    return value < icon.low ? icon.lowc : value < icon.high ? icon.medc : icon.highc;
 }

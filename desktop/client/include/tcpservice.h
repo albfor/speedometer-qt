@@ -25,7 +25,7 @@ public:
     }
     bool connect_to_server();
     void run() override;
-    bool get_connection_state() override;
+    bool is_connected() override;
 };
 
 #endif

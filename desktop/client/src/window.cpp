@@ -31,7 +31,7 @@ Window::Window(COMService *comserv, QWidget *parent)
 
 void Window::manage_blinker_sound()
 {
-    bool sound = comserv->get_turn_signal_state() != Setting::OFF && comserv->get_connection_state();
+    bool sound = comserv->get_turn_signal_state() != Setting::OFF && comserv->is_connected();
 
     // Manage the sound playback based on the signal state
     if (sound && !turn_signal_sound.isPlaying())

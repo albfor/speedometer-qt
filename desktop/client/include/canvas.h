@@ -6,6 +6,7 @@
 #include <QColor>
 #include <QPainter>
 #include <QWidget>
+#include <qfont.h>
 
 // Arc rectangle dimensions and angles used for drawing an arc
 constexpr QRect ARC_RECTANGLE(70, 50, 600, 600); // Rectangle defining the boundary for the arc
@@ -24,11 +25,11 @@ constexpr int INITIAL_ANGLE = 330; // Starting angle for the first tick mark in 
 constexpr int LABEL_TO_TICK_DISTANCE = 21;  // Offset distance for the text from the tick marks in pixels
 constexpr int LABEL_TO_TICK_OFFSET_X = -15; // X-axis offset for text positioning relative to tick marks
 constexpr int LABEL_TO_TICK_OFFSET_Y = 9;   // Y-axis offset for text positioning relative to tick marks
-constexpr int NEEDLE_LENGTH = 220;          // Length of the needle (pointer) in pixels
 
 // Needle value and offset
-constexpr int NEEDLE_VALUE = 240 - 50; // Value that determines where the needle points (subtracting 50 to adjust)
-constexpr int NEEDLE_OFFSET = 210;     // Offset value used in needle positioning
+constexpr int NEEDLE_LENGTH = 220;
+constexpr int NEEDLE_OFFSET = 210;
+const QFont HELVETICA_FONT_22("Helvetica", 22);
 
 // Magic numbers turned into constants for clarity
 constexpr int ELLIPSE_RADIUS = 18; // Radius of the central ellipse in pixels
@@ -40,7 +41,6 @@ const QPoint BATTERY_LEVEL_POSITION(725, 360);
 const QSize BATTERY_LEVEL_SIZE(35, -80);
 
 const QFont HELVETICA_FONT_14("Helvetica", 14);
-const QFont HELVETICA_FONT_22("Helvetica", 22);
 const QFont HELVETICA_FONT_10("Helvetica", 10);
 
 // Declaration of the Canvas class, which inherits from QWidget
@@ -57,6 +57,8 @@ protected:
     void paintEvent(QPaintEvent *event) override;
 
 private:
+    static const QString icon_font;
+    static const QString text_font;
     struct Icon
     {
         const QPoint position;
@@ -66,9 +68,10 @@ private:
 
     struct IconWithColoredStates : Icon
     {
-        int low, high;
-        QColor lowc, medc, highc;
-        QPoint label;
+        const int low, high;
+        const QColor lowc, medc, highc;
+        const QPoint label;
+        static const QFont label_font;
     };
 
     struct TickSettings
@@ -76,21 +79,22 @@ private:
         int small_width, small_len, medium_width, medium_len, large_width, large_len;
     };
 
-    const QString icon_font = "MaterialIcons";
-    const IconWithColoredStates battery{{QPoint(675, 380), QChar(0xebdc), QFont(icon_font, 100)},
-                                        25,
-                                        50,
-                                        Qt::red,
-                                        Qt::yellow,
-                                        Qt::green,
-                                        QPoint(730, 385)};
-    const IconWithColoredStates temperature{
-        {QPoint(710, 480), QChar(0xe1ff), QFont(icon_font, 50)}, 5, 40, Qt::white, Qt::blue, Qt::red, QPoint(730, 490)};
     const Icon left_turn_signal{QPoint(50, 75), QChar(0xe5c4), QFont(icon_font, 50)};
     const Icon right_turn_signal{QPoint(600, 75), QChar(0xe5c8), QFont(icon_font, 50)};
-
     const Icon connection_ok{QPoint(345, 430), QChar(0xe9e4), QFont(icon_font, 40)};
     const Icon connection_error{QPoint(345, 430), QChar(0xe628), QFont(icon_font, 40)};
+    const IconWithColoredStates battery{
+        {QPoint(675, 380), QChar(0xebdc), QFont(icon_font, 100)},
+        25,
+        50,
+        Qt::red,
+        Qt::yellow,
+        Qt::green,
+        QPoint(730, 385),
+    };
+    const IconWithColoredStates temperature{
+        {QPoint(710, 480), QChar(0xe1ff), QFont(icon_font, 50)}, 5, 40, Qt::white, Qt::blue, Qt::red, QPoint(730, 490),
+    };
 
     static constexpr TickSettings tick_settings{2, 270, 4, 275, 6, 280};
     static constexpr int tick_to_center_distance = 250;
@@ -106,5 +110,6 @@ private:
     void manage_blinker_sound();
     void paint_icon(QPainter &painter, const Icon &icon);
 };
+
 
 #endif // CANVAS_H

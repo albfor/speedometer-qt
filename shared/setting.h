@@ -29,9 +29,6 @@ struct signal_type
 {
     const char *key;
     signal_value value;
-    constexpr signal_type(const char *_key, signal_value _value) : key{_key}, value{_value}
-    {
-    }
 };
 
 template <size_t Size> static constexpr size_t sum(const signal_type (&arr)[Size], size_t index = 0, size_t result = 0)

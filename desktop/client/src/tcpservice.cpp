@@ -68,4 +68,4 @@ void TCPService::run()
     }
 }
 
-bool TCPService::get_connection_state() { return connected; }
+bool TCPService::is_connected() { return connected; }

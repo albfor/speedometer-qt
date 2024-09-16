@@ -42,7 +42,7 @@ public:
     virtual void run() = 0;
 
     /// @brief Return true if there is a connection.
-    virtual bool get_connection_state() = 0;
+    virtual bool is_connected() = 0;
 };
 
 #endif // COMSERVICE_H
