@@ -13,6 +13,8 @@ option(USE_CAN "Use the CAN protocol to communicate." OFF)
 
 find_package(Qt6 REQUIRED COMPONENTS Widgets Core SerialPort Multimedia)
 
+qt_add_resources(RESOURCES desktop/client/res/resources.qrc)
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 if (USE_CAN)
@@ -57,7 +59,7 @@ add_custom_target(pio_server_upload
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/esp32/server/
     COMMENT "Uploading Server firmware to microcontroller"
     VERBATIM)
-    
+
 add_dependencies(pio_client_upload pio_client_build)
 add_dependencies(pio_server_upload pio_server_build)
 else()
@@ -81,6 +83,8 @@ else()
   target_link_libraries(server Qt6::Core Qt6::Widgets Qt6::Multimedia)
   target_compile_definitions(server PUBLIC TCP)
 endif()
+
+target_sources(client PRIVATE ${RESOURCES})
 
 add_custom_target(use_can
   COMMAND ${CMAKE_COMMAND} -DUSE_CAN=ON ${CMAKE_SOURCE_DIR}

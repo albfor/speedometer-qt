@@ -1,10 +1,9 @@
 #include "canvas.h"
 #include "setting.h"
+
 #include <QDebug>
+#include <QDir>
 #include <QFileInfo>
-#include <qcolor.h>
-#include <qnamespace.h>
-#include <qslider.h>
 
 // Constructor for the Canvas class
 Canvas::Canvas(COMService *comserv, QWidget *parent)
@@ -12,21 +11,8 @@ Canvas::Canvas(COMService *comserv, QWidget *parent)
       backgroundColor(Qt::black) // Initialize base class QWidget and member variable comserv
 {
     blinkerSound.setAudioOutput(&blinkerSoundOutput);
-
-    QString filePath = "../desktop/client/res/turn-signals.wav"; // Adjust the path as necessary
-
-    // Check if the file exists
-    QFileInfo fileInfo(filePath);
-    if (!fileInfo.exists())
-    {
-        qDebug() << "Error: File does not exist at" << filePath;
-    }
-    else
-    {
-        // Set the source for QSoundEffect
-        blinkerSound.setSource(QUrl::fromLocalFile(filePath));
-        blinkerSound.setLoops(QMediaPlayer::Infinite);
-    }
+    blinkerSound.setSource(QUrl("qrc:/turn-signals.wav"));
+    blinkerSound.setLoops(QMediaPlayer::Infinite);
 }
 
 void Canvas::paint_icon(QPainter &painter, const Icon &icon)
