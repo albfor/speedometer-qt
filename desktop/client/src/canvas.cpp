@@ -1,11 +1,6 @@
 #include "canvas.h"
 #include "setting.h"
 
-#include <QDebug>
-#include <QDir>
-#include <QFileInfo>
-#include <qmath.h>
-
 Canvas::Canvas(COMService *comserv, QWidget *parent) : QWidget(parent), comserv(comserv), backgroundColor(Qt::black)
 {
 }
@@ -160,22 +155,23 @@ void Canvas::paint_temperature(QPainter &painter)
 
 void Canvas::paint_battery(QPainter &painter)
 {
-    using speedometer::icons::battery;
-    unsigned battery_level = comserv->get_battery_level();
-    QColor battery_color = determine_color(battery, battery_level);
+    using namespace::speedometer::icons;
+
+    unsigned battery_state = comserv->get_battery_level();
+    QColor battery_color = determine_color(battery, battery_state);
     painter.setPen(battery_color);
     painter.setBrush(battery_color);
     paint_icon(painter, battery);
     // bar inside icon showing percentage
-    QRect battery_level_bar(speedometer::icons::battery_level, speedometer::icons::battery_level_size);
+    QRect battery_level_bar(battery_level, battery_level_size);
 
     // map battery_level to gui
-    battery_level_bar.setHeight((speedometer::icons::battery_level_size.height() * static_cast<int>(battery_level)) /
+    battery_level_bar.setHeight((battery_level_size.height() * static_cast<int>(battery_state)) /
                                 100);
     painter.drawRect(battery_level_bar);
     painter.setPen(Qt::white);
     painter.setFont(battery.label_font);
-    painter.drawText(battery.label, QString("%1%").arg(battery_level, 3)); // 3 is max digits
+    painter.drawText(battery.label, QString("%1%").arg(battery_state, 3)); // 3 is max digits
 }
 
 void Canvas::paint_icon(QPainter &painter, const speedometer::icons::Icon &icon)

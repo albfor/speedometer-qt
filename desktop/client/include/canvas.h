@@ -7,7 +7,6 @@
 #include <QFont>
 #include <QPainter>
 #include <QWidget>
-#include <qcontainerfwd.h>
 
 namespace speedometer
 {
