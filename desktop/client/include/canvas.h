@@ -1,23 +1,11 @@
 #ifndef CANVAS_H
 #define CANVAS_H
 
-// Include the QWidget class, which is the base class for all GUI objects in Qt
-#include <QWidget>
+#include "comservice.h"
 
-// Include the QPainter class, which provides functionality for painting on widgets
 #include <QColor>
 #include <QPainter>
-
-// Include the header file for the audio, which contains various constants used for media
-#include <QAudioOutput>
-#include <QMediaPlayer>
-#include <qobject.h>
-#include <qpen.h>
-#include <qpoint.h>
-#include <qsize.h>
-
-// Include the header file for COMService, which is presumably used for communication and provides data to be displayed
-#include "comservice.h"
+#include <QWidget>
 
 // Arc rectangle dimensions and angles used for drawing an arc
 constexpr QRect ARC_RECTANGLE(70, 50, 600, 600); // Rectangle defining the boundary for the arc
@@ -62,7 +50,7 @@ class Canvas : public QWidget
 public:
     // Constructor declaration for Canvas class
     explicit Canvas(COMService *comserv, QWidget *parent = nullptr);
-    bool isIconGreen = true;
+    bool is_visible = true;
 
 protected:
     // Override of the paintEvent function to handle custom painting
@@ -108,8 +96,6 @@ private:
     static constexpr int tick_to_center_distance = 250;
 
     COMService *comserv;
-    QMediaPlayer blinkerSound;
-    QAudioOutput blinkerSoundOutput;
     QColor backgroundColor;
 
     void paint_battery(QPainter &painter);

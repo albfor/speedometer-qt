@@ -5,14 +5,8 @@
 #include <QDir>
 #include <QFileInfo>
 
-// Constructor for the Canvas class
-Canvas::Canvas(COMService *comserv, QWidget *parent)
-    : QWidget(parent), comserv(comserv), blinkerSound(this), blinkerSoundOutput(this),
-      backgroundColor(Qt::black) // Initialize base class QWidget and member variable comserv
+Canvas::Canvas(COMService *comserv, QWidget *parent) : QWidget(parent), comserv(comserv), backgroundColor(Qt::black)
 {
-    blinkerSound.setAudioOutput(&blinkerSoundOutput);
-    blinkerSound.setSource(QUrl("qrc:/turn-signals.wav"));
-    blinkerSound.setLoops(QMediaPlayer::Infinite);
 }
 
 void Canvas::paint_icon(QPainter &painter, const Icon &icon)
@@ -80,9 +74,6 @@ void Canvas::paintEvent(QPaintEvent *event)
 
     // Draw the needle
     painter.drawLine(center, QPointF(needleX, needleY));
-
-    manage_blinker_sound();
-
     paint_turn_signals(painter);
 }
 
@@ -94,7 +85,7 @@ void Canvas::paint_turn_signals(QPainter &painter)
         QColor left, right;
         QColor activeColor(Qt::green);
 
-        if (!isIconGreen)
+        if (!is_visible)
         {
             left = backgroundColor;
             right = backgroundColor;
@@ -171,20 +162,6 @@ void Canvas::paint_ticks(QPainter &painter, QPen &pen)
     }
 }
 
-void Canvas::manage_blinker_sound()
-{
-    bool shouldPlaySound = comserv->get_turn_signal_state() != Setting::OFF && comserv->get_connection_state();
-
-    // Manage the sound playback based on the signal state
-    if (shouldPlaySound && !blinkerSound.isPlaying())
-    {
-        blinkerSound.play();
-    }
-    else if (!shouldPlaySound && blinkerSound.isPlaying())
-    {
-        blinkerSound.stop();
-    }
-}
 
 QColor Canvas::determine_color(IconWithColoredStates icon, int value)
 {
