@@ -21,12 +21,9 @@ void Canvas::paintEvent(QPaintEvent *event)
     // outer edge speedometer
     painter.drawArc(arc_rectangle, start_angle, span_angle);
 
-    // Calculate the center of the arc rectangle
-    QPoint needle_attach_point = needle::attach_point;
-
     // Set brush color to red and draw a circle at the center of the arc
     painter.setBrush(Qt::red);
-    painter.drawEllipse(needle_attach_point, needle::attach_point_size, needle::attach_point_size);
+    painter.drawEllipse(needle::attach_point, needle::attach_point_size, needle::attach_point_size);
 
     paint_ticks(painter, pen);
     paint_temperature(painter);
@@ -49,8 +46,8 @@ void Canvas::paintEvent(QPaintEvent *event)
     pen.setColor(Qt::red);
     painter.setPen(pen);
     qreal needle_radians = qDegreesToRadians(needle::offset - comserv->get_speed());
-    painter.drawLine(needle_attach_point, QPointF(needle_attach_point.x() + needle::length * qCos(needle_radians),
-                                                  needle_attach_point.y() - needle::length * qSin(needle_radians)));
+    painter.drawLine(needle::attach_point, QPointF(needle::attach_point.x() + needle::length * qCos(needle_radians),
+                                                  needle::attach_point.y() - needle::length * qSin(needle_radians)));
 
     paint_turn_signals(painter);
 }
