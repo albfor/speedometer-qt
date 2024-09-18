@@ -25,7 +25,7 @@ TCPService::TCPService() : COMService(), end{false}
   address.sin_addr.s_addr = INADDR_ANY;
   address.sin_port = htons(Setting::Server::PORT);
 
-  if (bind((server_fd), (struct sockaddr *)&address, sizeof(address)) < 0)
+  if (bind((server_fd), reinterpret_cast<struct sockaddr *>(&address), sizeof(address)) < 0)
   {
     std::cerr << "Bind failed\n";
     close(server_fd);
@@ -38,7 +38,7 @@ TCPService::TCPService() : COMService(), end{false}
 
 void *TCPService::handle_connection(void *arg)
 {
-  TCPService *service = (TCPService *)arg;
+  TCPService *service = static_cast<TCPService *>(arg);
 
   while (!service->end)
   {
@@ -50,8 +50,8 @@ void *TCPService::handle_connection(void *arg)
     }
     std::cout << "Server is listening on port " << Setting::Server::PORT << std::endl;
     if ((service->client_fd =
-             accept(service->server_fd, (struct sockaddr *)&service->address,
-                    (socklen_t *)&service->addrlen)) < 0)
+             accept(service->server_fd, reinterpret_cast<struct sockaddr *>(&service->address),
+                    reinterpret_cast<socklen_t *>(&service->addrlen))) < 0)
     {
       std::cerr << "Accept failed\n";
       continue;
