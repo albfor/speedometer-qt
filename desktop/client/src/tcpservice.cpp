@@ -1,6 +1,7 @@
-#include "tcpservice.h"
 #include <thread>
 #include <chrono>
+
+#include "tcpservice.h"
 
 TCPService::TCPService() : COMService(), connected{false}, end{false}
 {
@@ -29,7 +30,7 @@ void TCPService::run()
             std::this_thread::sleep_for(std::chrono::seconds(1));
             continue;
         }
-        if (connect(client_fd, (struct sockaddr *)&server_address, sizeof(server_address)) < 0)
+        if (connect(client_fd, reinterpret_cast<struct sockaddr *>(&server_address), sizeof(server_address)) < 0)
         {
             std::cerr << "Connection failed\n";
             close(client_fd);
