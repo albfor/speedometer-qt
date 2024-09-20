@@ -52,7 +52,7 @@ if (USE_CAN)
 
     # Build ESP32 server
     add_custom_target(
-        server_esp 
+        server_esp
         ALL
         COMMAND platformio run
         WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/esp32/server"
@@ -68,20 +68,12 @@ if (USE_CAN)
         COMMENT "Uploading Server firmware to microcontroller"
         VERBATIM
     )
-
-    add_dependencies(
-        client_esp
-        client_upload
-        server_esp
-        server_upload
-    )
 endif()
 
 # Switch to UART/CAN communication
 add_custom_target(
     use_can
     COMMAND ${CMAKE_COMMAND} -DUSE_CAN=ON ${CMAKE_SOURCE_DIR}
-    COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}
     COMMENT "Switching to CAN"
 )
 
@@ -89,7 +81,6 @@ add_custom_target(
 add_custom_target(
     use_tcp
     COMMAND ${CMAKE_COMMAND} -DUSE_CAN=OFF ${CMAKE_SOURCE_DIR}
-    COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}
     COMMENT "Switching to TCP" 
 )
 
