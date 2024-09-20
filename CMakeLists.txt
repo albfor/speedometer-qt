@@ -31,43 +31,8 @@ add_subdirectory(desktop/client)
 add_subdirectory(desktop/server)
 
 if (USE_CAN)
-    # Build ESP32 client
-    add_custom_target(
-        client_esp
-        ALL
-        COMMAND platformio run
-        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/esp32/client"
-        COMMENT "Building PlatformIO Client"
-        VERBATIM
-    )
-
-    # Upload ESP32 client
-    add_custom_target(
-        client_upload
-        COMMAND platformio run --target upload
-        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/esp32/client"
-        COMMENT "Uploading Client firmware to microcontroller"
-        VERBATIM
-    )
-
-    # Build ESP32 server
-    add_custom_target(
-        server_esp
-        ALL
-        COMMAND platformio run
-        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/esp32/server"
-        COMMENT "Building PlatformIO Server"
-        VERBATIM
-    )
-
-    # Upload ESP32 server
-    add_custom_target(
-        server_upload
-        COMMAND platformio run --target upload
-        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/esp32/server/"
-        COMMENT "Uploading Server firmware to microcontroller"
-        VERBATIM
-    )
+    add_subdirectory(esp32/client)
+    add_subdirectory(esp32/server)
 endif()
 
 # Switch to UART/CAN communication
