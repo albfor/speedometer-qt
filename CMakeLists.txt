@@ -39,6 +39,7 @@ endif()
 add_custom_target(
     use_can
     COMMAND ${CMAKE_COMMAND} -DUSE_CAN=ON ${CMAKE_SOURCE_DIR}
+    COMMAND ${CMAKE_COMMAND} --build .
     COMMENT "Switching to CAN"
 )
 
@@ -46,66 +47,66 @@ add_custom_target(
 add_custom_target(
     use_tcp
     COMMAND ${CMAKE_COMMAND} -DUSE_CAN=OFF ${CMAKE_SOURCE_DIR}
+    COMMAND ${CMAKE_COMMAND} --build .
     COMMENT "Switching to TCP" 
 )
 
 function(find_and_install_font FONT_NAME SOURCE_DIR FONT_VARIABLE)
-  if(WIN32)
-    set(FONT_DIRS "C:/Windows/Fonts")
-    set(INSTALL_DIR "C:/Windows/Fonts")
-  elseif(APPLE)
-    set(FONT_DIRS "/Library/Fonts" "~/Library/Fonts" "/System/Library/Fonts"
-                  "/Network/Library/Fonts")
-    set(INSTALL_DIR "/Library/Fonts")
-  elseif(UNIX)
-    set(FONT_DIRS "/usr/share/fonts" "~/.fonts" "/usr/local/share/fonts"
-                  "/usr/share/fonts/truetype")
+    set(
+        FONT_DIRS
+        "/usr/share/fonts"
+        "~/.fonts"
+        "/usr/local/share/fonts"
+        "/usr/share/fonts/truetype"
+    )
+
     set(INSTALL_DIR "$ENV{HOME}/.local/share/fonts")
-  endif()
-  find_file(
-    FONT_PATH ${FONT_NAME}
-    PATHS ${FONT_DIRS}
-    NO_DEFAULT_PATH)
-  if(FONT_PATH)
-    set(${FONT_VARIABLE}
-        ${FONT_PATH}
-        PARENT_SCOPE)
-  else()
-    set(FONT_SOURCE_PATH "${SOURCE_DIR}/${FONT_NAME}")
-    if(EXISTS ${FONT_SOURCE_PATH})
-      message(
-        STATUS
-          "Font not found. Installing from ${FONT_SOURCE_PATH} to ${INSTALL_DIR}"
-      )
-      file(COPY ${FONT_SOURCE_PATH} DESTINATION ${INSTALL_DIR})
-      find_file(
+
+    find_file(
         FONT_PATH ${FONT_NAME}
-        PATHS ${INSTALL_DIR}
-        NO_DEFAULT_PATH)
-      if(FONT_PATH)
-        set(${FONT_VARIABLE}
+        PATHS ${FONT_DIRS}
+        NO_DEFAULT_PATH
+    )
+
+    if(FONT_PATH)
+        set(
+            ${FONT_VARIABLE}
             ${FONT_PATH}
-            PARENT_SCOPE)
-        message(STATUS "Font installed at: ${FONT_PATH}")
-      else()
-        message(FATAL_ERROR "Failed to install font: ${FONT_NAME}")
-      endif()
+            PARENT_SCOPE
+        )
     else()
-      message(
-        FATAL_ERROR
-          "Font not found and source file does not exist: ${FONT_SOURCE_PATH}")
+        set(FONT_SOURCE_PATH "${SOURCE_DIR}/${FONT_NAME}")
+
+        if(EXISTS ${FONT_SOURCE_PATH})
+            message(STATUS "Font not found. Installing from ${FONT_SOURCE_PATH} to ${INSTALL_DIR}")
+
+            file(COPY ${FONT_SOURCE_PATH} DESTINATION ${INSTALL_DIR})
+
+            find_file(
+                FONT_PATH ${FONT_NAME}
+                PATHS ${INSTALL_DIR}
+                NO_DEFAULT_PATH
+            )
+
+            if(FONT_PATH)
+                set( ${FONT_VARIABLE} ${FONT_PATH} PARENT_SCOPE)
+
+                message(STATUS "Font installed at: ${FONT_PATH}")
+            else()
+                message(FATAL_ERROR "Failed to install font: ${FONT_NAME}")
+            endif()
+        else()
+            message(FATAL_ERROR "Font not found and source file does not exist: ${FONT_SOURCE_PATH}")
+        endif()
     endif()
-  endif()
 endfunction()
 
-# Define the font you are looking for and the source directory
 set(FONT_NAME "MaterialIcons.ttf")
 set(SOURCE_DIR "${CMAKE_SOURCE_DIR}/desktop/client/res")
-# Call the find_and_install_font function
 find_and_install_font(${FONT_NAME} ${SOURCE_DIR} FONT_PATH)
 # Check if the font was found or installed
 if(FONT_PATH)
-  message(STATUS "Font available at: ${FONT_PATH}")
+    message(STATUS "Font available at: ${FONT_PATH}")
 else()
-  message(FATAL_ERROR "Font not available: ${FONT_NAME}")
+    message(FATAL_ERROR "Font not available: ${FONT_NAME}")
 endif()
