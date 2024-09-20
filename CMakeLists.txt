@@ -1,101 +1,96 @@
 cmake_minimum_required(VERSION 3.22)
+
 project(
-  av23tr
-  VERSION 1.0
-  DESCRIPTION "Project"
-  LANGUAGES CXX)
+    speedometer
+    VERSION 1.0
+    LANGUAGES CXX
+)
+
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
 add_compile_options(-Wall -Wextra -Wpedantic -Werror)
+
 # Toggle ON/OFF to switch between CAN and TCP/IP
 option(USE_CAN "Use the CAN protocol to communicate." OFF)
 
-find_package(Qt6 REQUIRED COMPONENTS Widgets Core SerialPort Multimedia)
-
-qt_add_resources(RESOURCES desktop/client/res/resources.qrc)
+find_package(
+    Qt6
+    REQUIRED COMPONENTS
+    Widgets
+    Core
+    SerialPort
+    Multimedia
+)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+add_subdirectory(desktop/client)
+add_subdirectory(desktop/server)
+
 if (USE_CAN)
-  add_executable(
-    client
-    desktop/client/main.cpp
-    desktop/client/src/window.cpp
-    desktop/client/src/canvas.cpp
-    desktop/client/src/serialportservice.cpp
-    desktop/client/src/comservice.cpp)
-  target_include_directories(client PUBLIC desktop/client/include shared)
-  target_link_libraries(client Qt6::Core Qt6::Widgets Qt6::SerialPort Qt6::Multimedia)
+    # Build ESP32 client
+    add_custom_target(
+        client_esp
+        ALL
+        COMMAND platformio run
+        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/esp32/client"
+        COMMENT "Building PlatformIO Client"
+        VERBATIM
+    )
 
-  add_executable(
-    server
-    desktop/server/main.cpp
-    desktop/server/src/window.cpp
-    desktop/server/src/serialportservice.cpp
-    desktop/server/src/comservice.cpp)
-  target_include_directories(server PUBLIC desktop/server/include shared)
-  target_link_libraries(server Qt6::Core Qt6::Widgets Qt6::SerialPort Qt6::Multimedia)
- # Add custom targets for PlatformIO (build and upload)
-  # Client Microcontroller (ESP32)
-add_custom_target(pio_client_build ALL
-    COMMAND platformio run
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/esp32/client
-    COMMENT "Building PlatformIO Client project"
-    VERBATIM)
-add_custom_target(pio_client_upload
-    COMMAND platformio run --target upload
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/esp32/client
-    COMMENT "Uploading Client firmware to microcontroller"
-    VERBATIM)
-# Server Microcontroller (ESP32)
-add_custom_target(pio_server_build ALL
-    COMMAND platformio run
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/esp32/server
-    COMMENT "Building PlatformIO Server project"
-    VERBATIM)
-add_custom_target(pio_server_upload
-    COMMAND platformio run --target upload
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/esp32/server/
-    COMMENT "Uploading Server firmware to microcontroller"
-    VERBATIM)
+    # Upload ESP32 client
+    add_custom_target(
+        client_upload
+        COMMAND platformio run --target upload
+        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/esp32/client"
+        COMMENT "Uploading Client firmware to microcontroller"
+        VERBATIM
+    )
 
-add_dependencies(pio_client_upload pio_client_build)
-add_dependencies(pio_server_upload pio_server_build)
-else()
-  add_executable(
-    client
-    desktop/client/main.cpp
-    desktop/client/src/window.cpp
-    desktop/client/src/tcpservice.cpp
-    desktop/client/src/canvas.cpp
-    desktop/client/src/comservice.cpp)
-  target_include_directories(client PUBLIC desktop/client/include shared)
-  target_link_libraries(client Qt6::Core Qt6::Widgets Qt6::Multimedia)
-  target_compile_definitions(client PUBLIC TCP)
-  add_executable(
-    server
-    desktop/server/main.cpp
-    desktop/server/src/window.cpp
-    desktop/server/src/tcpservice.cpp
-    desktop/server/src/comservice.cpp)
-  target_include_directories(server PUBLIC desktop/server/include shared)
-  target_link_libraries(server Qt6::Core Qt6::Widgets Qt6::Multimedia)
-  target_compile_definitions(server PUBLIC TCP)
+    # Build ESP32 server
+    add_custom_target(
+        server_esp 
+        ALL
+        COMMAND platformio run
+        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/esp32/server"
+        COMMENT "Building PlatformIO Server"
+        VERBATIM
+    )
+
+    # Upload ESP32 server
+    add_custom_target(
+        server_upload
+        COMMAND platformio run --target upload
+        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/esp32/server/"
+        COMMENT "Uploading Server firmware to microcontroller"
+        VERBATIM
+    )
+
+    add_dependencies(
+        client_esp
+        client_upload
+        server_esp
+        server_upload
+    )
 endif()
 
-target_sources(client PRIVATE ${RESOURCES})
-
-add_custom_target(use_can
-  COMMAND ${CMAKE_COMMAND} -DUSE_CAN=ON ${CMAKE_SOURCE_DIR}
-  COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}
-  COMMENT "Switching to CAN"
+# Switch to UART/CAN communication
+add_custom_target(
+    use_can
+    COMMAND ${CMAKE_COMMAND} -DUSE_CAN=ON ${CMAKE_SOURCE_DIR}
+    COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}
+    COMMENT "Switching to CAN"
 )
 
-add_custom_target(use_tcp
-  COMMAND ${CMAKE_COMMAND} -DUSE_CAN=OFF ${CMAKE_SOURCE_DIR}
-  COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}
-  COMMENT "Switching to TCP" 
+# Switch to TCP communication
+add_custom_target(
+    use_tcp
+    COMMAND ${CMAKE_COMMAND} -DUSE_CAN=OFF ${CMAKE_SOURCE_DIR}
+    COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}
+    COMMENT "Switching to TCP" 
 )
 
 function(find_and_install_font FONT_NAME SOURCE_DIR FONT_VARIABLE)
@@ -146,6 +141,7 @@ function(find_and_install_font FONT_NAME SOURCE_DIR FONT_VARIABLE)
     endif()
   endif()
 endfunction()
+
 # Define the font you are looking for and the source directory
 set(FONT_NAME "MaterialIcons.ttf")
 set(SOURCE_DIR "${CMAKE_SOURCE_DIR}/desktop/client/res")

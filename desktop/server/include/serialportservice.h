@@ -27,7 +27,7 @@ public:
         wait();
     }
 
-    bool get_connection_state();
+    bool is_connected();
 };
 
 #endif // SERIALPORT_H

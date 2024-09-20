@@ -1,8 +1,9 @@
 #ifndef SERIALPORT_H
 #define SERIALPORT_H
 
-#include <QThread>
 #include "comservice.h"
+
+#include <QThread>
 
 class SerialPortService : public COMService, public QThread
 {
@@ -22,7 +23,7 @@ public:
         wait();
     }
 
-    bool get_connection_state() override;
+    bool is_connected() override;
 };
 
 #endif

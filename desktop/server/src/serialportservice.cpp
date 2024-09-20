@@ -1,6 +1,5 @@
 #include "serialportservice.h"
 #include <QDebug>
-#include <qlogging.h>
 
 void SerialPortService::run()
 {
@@ -61,7 +60,7 @@ void SerialPortService::run()
     }
 }
 
-bool SerialPortService::get_connection_state()
+bool SerialPortService::is_connected()
 {
     return connected;
 }

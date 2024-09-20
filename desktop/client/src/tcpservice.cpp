@@ -1,5 +1,6 @@
-#include <thread>
 #include <chrono>
+#include <iostream>
+#include <thread>
 
 #include "tcpservice.h"
 
@@ -32,7 +33,6 @@ void TCPService::run()
         }
         if (connect(client_fd, reinterpret_cast<struct sockaddr *>(&server_address), sizeof(server_address)) < 0)
         {
-            std::cerr << "Connection failed\n";
             close(client_fd);
             std::this_thread::sleep_for(std::chrono::seconds(1));
             continue;
@@ -69,4 +69,7 @@ void TCPService::run()
     }
 }
 
-bool TCPService::is_connected() { return connected; }
+bool TCPService::is_connected()
+{
+    return connected;
+}

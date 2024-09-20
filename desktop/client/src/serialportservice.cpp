@@ -65,7 +65,7 @@ void SerialPortService::run()
     }
 }
 
-bool SerialPortService::get_connection_state()
+bool SerialPortService::is_connected()
 {
     return connected;
 }
