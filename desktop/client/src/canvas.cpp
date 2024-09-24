@@ -36,9 +36,14 @@ void Canvas::paintEvent(QPaintEvent *event)
         painter.drawText(label_position, message);
     };
     if (comserv->is_connected())
+    {
         paint_connection(icons::connection_ok, QString("%1 km/h").arg(comserv->get_speed()), icons::speed_label);
+    }
     else
+    {
+        painter.setPen(Qt::red);
         paint_connection(icons::connection_error, "Connection Error!", icons::errror_label);
+    }
 
     // paint the needle
     pen.setCapStyle(Qt::RoundCap);
