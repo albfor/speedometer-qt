@@ -6,7 +6,7 @@
 void SerialPortService::run()
 {
     QSerialPort serial;
-    serial.setPortName(Setting::SerialPort::CLIENT_PORT);
+    serial.setPortName(Setting::SerialPort::PORT);
     serial.setBaudRate(Setting::SerialPort::BAUD_RATE);
     serial.setDataBits(QSerialPort::Data8);
     serial.setStopBits(QSerialPort::OneStop);

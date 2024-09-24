@@ -22,14 +22,14 @@ else()
 
 	target_compile_definitions(
 		server
-		PUBLIC
+		PRIVATE
 		TCP
 	)
 endif()
 
 target_include_directories(
 	server
-	PUBLIC
+	PRIVATE
 	include
 	"${PROJECT_SOURCE_DIR}/shared"
 )

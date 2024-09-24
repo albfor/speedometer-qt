@@ -29,3 +29,4 @@ Use the use_can target to compile for can & uart.
 ```shell
 make use_can
 ```
+

@@ -34,7 +34,7 @@ endif()
 
 target_include_directories(
 	client
-	PUBLIC
+	PRIVATE
 	include
 	"${PROJECT_SOURCE_DIR}/shared"
 )

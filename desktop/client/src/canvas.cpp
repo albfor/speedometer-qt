@@ -47,7 +47,7 @@ void Canvas::paintEvent(QPaintEvent *event)
     painter.setPen(pen);
     qreal needle_radians = qDegreesToRadians(needle::offset - comserv->get_speed());
     painter.drawLine(needle::attach_point, QPointF(needle::attach_point.x() + needle::length * qCos(needle_radians),
-                                                  needle::attach_point.y() - needle::length * qSin(needle_radians)));
+                                                   needle::attach_point.y() - needle::length * qSin(needle_radians)));
 
     paint_turn_signals(painter);
 }
@@ -152,7 +152,7 @@ void Canvas::paint_temperature(QPainter &painter)
 
 void Canvas::paint_battery(QPainter &painter)
 {
-    using namespace::speedometer::icons;
+    using namespace ::speedometer::icons;
 
     unsigned battery_state = comserv->get_battery_level();
     QColor battery_color = determine_color(battery, battery_state);
@@ -163,8 +163,7 @@ void Canvas::paint_battery(QPainter &painter)
     QRect battery_level_bar(battery_level, battery_level_size);
 
     // map battery_level to gui
-    battery_level_bar.setHeight((battery_level_size.height() * static_cast<int>(battery_state)) /
-                                100);
+    battery_level_bar.setHeight((battery_level_size.height() * static_cast<int>(battery_state)) / 100);
     painter.drawRect(battery_level_bar);
     painter.setPen(Qt::white);
     painter.setFont(battery.label_font);

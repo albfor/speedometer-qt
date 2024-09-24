@@ -9,6 +9,8 @@ project(
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Set the output directory for the binaries
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 add_compile_options(-Wall -Wextra -Wpedantic -Werror)
@@ -27,10 +29,12 @@ find_package(
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# Desktop projects
 add_subdirectory(desktop/client)
 add_subdirectory(desktop/server)
 
 if (USE_CAN)
+    # ESP32 projects
     add_subdirectory(esp32/client)
     add_subdirectory(esp32/server)
 endif()
@@ -51,6 +55,7 @@ add_custom_target(
     COMMENT "Switching to TCP" 
 )
 
+# Ensure MaterialsIcon font is installed
 function(find_and_install_font FONT_NAME SOURCE_DIR FONT_VARIABLE)
     set(
         FONT_DIRS
@@ -100,11 +105,9 @@ function(find_and_install_font FONT_NAME SOURCE_DIR FONT_VARIABLE)
         endif()
     endif()
 endfunction()
-
 set(FONT_NAME "MaterialIcons.ttf")
 set(SOURCE_DIR "${CMAKE_SOURCE_DIR}/desktop/client/res")
 find_and_install_font(${FONT_NAME} ${SOURCE_DIR} FONT_PATH)
-# Check if the font was found or installed
 if(FONT_PATH)
     message(STATUS "Font available at: ${FONT_PATH}")
 else()

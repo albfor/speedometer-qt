@@ -24,7 +24,7 @@ private:
     constexpr static int width_ = 800;
     constexpr static int height_ = 560;
 
-    void manage_blinker_sound();
+    void manage_turn_signal_sound();
 };
 
 #endif // WINDOW_H

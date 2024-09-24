@@ -100,8 +100,7 @@ constexpr int width{60};
 namespace SerialPort
 {
 constexpr int BAUD_RATE{9600};
-constexpr char CLIENT_PORT[] = "/dev/ttyUSB0";
-constexpr char SERVER_PORT[] = "/dev/ttyUSB1";
+constexpr char PORT[] = "/dev/ttyUSB0";
 } // namespace SerialPort
 
 } // namespace Setting

@@ -20,7 +20,7 @@ Window::Window(COMService *comserv, QWidget *parent)
 
     // turn signal sound and visual toggles
     connect(&blink_timer, &QTimer::timeout, [this]() {
-        manage_blinker_sound();
+        manage_turn_signal_sound();
         canvas.is_visible = !canvas.is_visible;
         canvas.update();
     });
@@ -29,16 +29,16 @@ Window::Window(COMService *comserv, QWidget *parent)
     update_timer.start(Setting::INTERVAL_MS);
 }
 
-void Window::manage_blinker_sound()
+void Window::manage_turn_signal_sound()
 {
-    bool sound = comserv->get_turn_signal_state() != Setting::OFF && comserv->is_connected();
+    bool should_play = comserv->get_turn_signal_state() != Setting::OFF && comserv->is_connected();
 
     // Manage the sound playback based on the signal state
-    if (sound && !turn_signal_sound.isPlaying())
+    if (should_play && !turn_signal_sound.isPlaying())
     {
         turn_signal_sound.play();
     }
-    else if (!sound && turn_signal_sound.isPlaying())
+    else if (!should_play && turn_signal_sound.isPlaying())
     {
         turn_signal_sound.stop();
     }
